@@ -43,8 +43,9 @@ const buildServer = async () => {
 
 
     await fastify.register(fastifyIO, {
+        allowEIO3: true,
         cors: {
-            origin: ['http://localhost:3000', 'http://localhost:3001', CORS_ORIGIN]
+            origin: ["https://netdefender.cloud", 'http://localhost:3000', 'http://localhost:3001', CORS_ORIGIN]
         }
     });
 
