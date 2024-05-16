@@ -38,7 +38,7 @@ const buildServer = async () => {
         // }
     })
     await fastify.register(fastifyCors, {
-        origin: CORS_ORIGIN,
+        origin: "*",
     })
 
 
