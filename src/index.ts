@@ -19,7 +19,6 @@ const CORS_ORIGIN = process.env.host || "http://localhost:3001";
 const CONNECTION_STRING_DATABASE = process.env.connectionString || "postgres://root:grnPxjp137IZq9urjBg4fyD5WywZsP0jh4Zdbqbe3XGqrVaZVo5nu7GCa3cJctSQ@177.242.132.170:5432/innovatec";
 
 
-const DOMAIN = "http://localhost:3000"
 
 import Stripe from 'stripe';
 const stripe = new Stripe('sk_test_51QTu8r04R4jFOf5Yy7kAOKJ0knB1ppnQYseykTSiQSUBAhvT232SOD77wILHeesOwIU0dijj3HxsUVc4DpoR60KW00VOvOjTGF')
@@ -176,7 +175,10 @@ const paymentRoutes = async (fastify: FastifyInstance) => {
     const netGuardian = "price_1QU0O304R4jFOf5YfxYKuf04";
     const cloudWatch = "price_1QU0O304R4jFOf5YCZ4SGIFB";
     const safeLink = "price_1QU0O304R4jFOf5YCRuf4AHF";
+    // NOTE: Dev ONLY
+    // const DOMAIN = "http://localhost:3000"
 
+    const DOMAIN = "https://netdefender.cloud"
     fastify.get('/netGuardian', async (req, res) => {
         const session = await stripe.checkout.sessions.create({
             line_items: [
