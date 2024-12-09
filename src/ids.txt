@@ -1,0 +1,6 @@
+CloudWatch product id: prod_RMjrjjSmqgcw1K
+CloudWatch subscription price id: price_1QU0O304R4jFOf5YCZ4SGIFB
+SafeLink product id: prod_RMjr2OYMaFYkJS
+SafeLink subscription price id: price_1QU0O304R4jFOf5YCRuf4AHF
+NetGuardian product id: prod_RMjrCGaI69pHtQ
+NetGuardian subscription price id: price_1QU0O304R4jFOf5YfxYKuf04

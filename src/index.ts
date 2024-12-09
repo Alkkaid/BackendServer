@@ -19,6 +19,11 @@ const CORS_ORIGIN = process.env.host || "http://localhost:3001";
 const CONNECTION_STRING_DATABASE = process.env.connectionString || "postgres://root:grnPxjp137IZq9urjBg4fyD5WywZsP0jh4Zdbqbe3XGqrVaZVo5nu7GCa3cJctSQ@177.242.132.170:5432/innovatec";
 
 
+const DOMAIN = "http://localhost:3000"
+
+import Stripe from 'stripe';
+const stripe = new Stripe('sk_test_51QTu8r04R4jFOf5Yy7kAOKJ0knB1ppnQYseykTSiQSUBAhvT232SOD77wILHeesOwIU0dijj3HxsUVc4DpoR60KW00VOvOjTGF')
+
 const subscriber = createPostgresSubscriber({
     connectionString: CONNECTION_STRING_DATABASE,
 })
@@ -101,7 +106,7 @@ const pingRoutes = async (fastify: FastifyInstance) => {
 }
 
 const deviceConnectionRoutes = async (fastify: FastifyInstance) => {
-    fastify.post("/create", async (request: FastifyRequest<{Body: InferInsertModel<typeof devicesConnections>}>, reply: FastifyReply) => {
+    fastify.post("/create", async (request: FastifyRequest<{ Body: InferInsertModel<typeof devicesConnections> }>, reply: FastifyReply) => {
         const requestBody = request.body;
         const deviceConnection = await db.insert(devicesConnections).values({
             id_device: requestBody.id_device,
@@ -111,8 +116,8 @@ const deviceConnectionRoutes = async (fastify: FastifyInstance) => {
             name: requestBody.name,
             brand: requestBody.brand,
         }).returning({
-                id_dc: devicesConnections.id_dc,
-            })
+            id_dc: devicesConnections.id_dc,
+        })
 
 
         // return reply.code(201).send(deviceConnection)
@@ -151,9 +156,9 @@ const deviceRoutes = async (fastify: FastifyInstance) => {
         const device = await db.insert(devices).values({
             code: getCode()
         }).returning({
-                uuid: devices.id_device,
-                code: devices.code,
-            })
+            uuid: devices.id_device,
+            code: devices.code,
+        })
 
         return reply.code(201).send(device.at(0))
     })
@@ -166,11 +171,78 @@ const deviceRoutes = async (fastify: FastifyInstance) => {
     })
 
 }
+
+const paymentRoutes = async (fastify: FastifyInstance) => {
+    const netGuardian = "price_1QU0O304R4jFOf5YfxYKuf04";
+    const cloudWatch = "price_1QU0O304R4jFOf5YCZ4SGIFB";
+    const safeLink = "price_1QU0O304R4jFOf5YCRuf4AHF";
+
+    fastify.get('/netGuardian', async (req, res) => {
+        const session = await stripe.checkout.sessions.create({
+            line_items: [
+                {
+                    // Provide the exact Price ID (for example, pr_1234) of the product you want to sell
+                    price: netGuardian,
+                    quantity: 1,
+                },
+            ],
+            mode: 'subscription',
+            success_url: `${DOMAIN}?success=true`,
+            cancel_url: `${DOMAIN}?canceled=true`,
+        });
+
+        //@ts-ignore
+        res.redirect(303, session.url);
+    });
+    fastify.get('/cloudWatch', async (req, res) => {
+        const session = await stripe.checkout.sessions.create({
+            line_items: [
+                {
+                    // Provide the exact Price ID (for example, pr_1234) of the product you want to sell
+                    price: cloudWatch,
+                    quantity: 1,
+                },
+            ],
+            mode: 'subscription',
+            success_url: `${DOMAIN}?success=true`,
+            cancel_url: `${DOMAIN}?canceled=true`,
+        });
+
+        //@ts-ignore
+        res.redirect(303, session.url);
+    });
+    fastify.get('/safeLink', async (req, res) => {
+        const session = await stripe.checkout.sessions.create({
+            line_items: [
+                {
+                    // Provide the exact Price ID (for example, pr_1234) of the product you want to sell
+                    price: safeLink,
+                    quantity: 1,
+                },
+            ],
+            mode: 'subscription',
+            success_url: `${DOMAIN}?success=true`,
+            cancel_url: `${DOMAIN}?canceled=true`,
+        });
+
+        //@ts-ignore
+        res.redirect(303, session.url);
+    });
+    // fastify.post("/getAll", async (request: FastifyRequest, reply: FastifyReply) => {
+    //     const xd = await db.select().from(devices);
+    //
+    //
+    //     return reply.send(xd);
+    // })
+
+}
 async function main() {
     const app = await buildServer();
     app.register(pingRoutes, { prefix: "/v1/ping" })
     app.register(deviceConnectionRoutes, { prefix: "/v1/deviceConnection" })
     app.register(deviceRoutes, { prefix: "/v1/device" })
+    app.register(paymentRoutes, { prefix: "/v1/stripe" })
+
 
     try {
         app.listen({
@@ -182,5 +254,6 @@ async function main() {
         console.error(err);
     }
 }
+
 connect();
 main();
